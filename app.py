@@ -14,7 +14,7 @@ from src.parsers import (
     parse_run_results,
 )
 from src.services.mapping_service import FIELD_LABELS, create_mapping_rows, mapping_dict_from_rows
-from src.services.ollama_service import OllamaService
+from src.services.ai_factory import ai_is_enabled, create_ai_service, selected_ai_provider
 from src.services.pdf_report import build_pdf_report
 from src.utils.config import load_config
 from src.utils.normalization import canonical_header
@@ -87,28 +87,33 @@ def build_csv_report(results, summary, filenames: dict[str, str | None]) -> byte
 
 st.set_page_config(page_title="Validator Deployment QA", page_icon="✅", layout="wide")
 config = load_config()
+ai_provider = selected_ai_provider(config)
 
 with st.sidebar:
     st.header("Aplikasi")
     st.write("Validator Deployment QA")
     ai_enabled = st.toggle(
-        "Fitur AI Ollama",
-        value=bool((config.get("ollama") or {}).get("enabled", False)),
-        help="Mengirim data terbatas ke endpoint Ollama yang dikonfigurasi untuk mapping dan penjelasan.",
+        "Fitur AI",
+        value=ai_is_enabled(config),
+        help="Mengirim data terbatas ke provider AI yang dikonfigurasi untuk mapping dan penjelasan.",
     )
-    st.caption("Seluruh validasi utama tetap deterministik dan diproses secara lokal.")
+    st.caption(f"Provider: {ai_provider}. Seluruh validasi utama tetap deterministik.")
     if ai_enabled:
-        ollama_status_service = OllamaService(config.get("ollama") or {})
-        available_models = ollama_status_service.available_models()
-        if ollama_status_service.model in available_models:
-            st.success(f"Ollama siap · {ollama_status_service.model}")
+        ai_status_service = create_ai_service(config)
+        available_models = ai_status_service.available_models()
+        if ai_status_service.model in available_models:
+            st.success(f"{ai_status_service.provider_name} siap · {ai_status_service.model}")
         elif available_models:
+            model_preview = ", ".join(available_models[:8])
+            if len(available_models) > 8:
+                model_preview += f", dan {len(available_models) - 8} model lain"
             st.error(
-                f"Model {ollama_status_service.model} tidak ditemukan. "
-                f"Model tersedia: {', '.join(available_models)}"
+                f"Model {ai_status_service.model} tidak ditemukan di {ai_status_service.provider_name}. "
+                f"Contoh model tersedia: {model_preview}"
             )
         else:
-            st.error("Ollama tidak dapat dihubungi atau model tidak tersedia di endpoint yang dikonfigurasi.")
+            detail = ai_status_service.last_error or "endpoint tidak dapat dihubungi."
+            st.error(f"{ai_status_service.provider_name} belum siap: {detail}")
 
 st.title("Validator Deployment QA")
 st.write("Validasi dokumentasi QA terhadap metadata dbt sebelum deployment.")
@@ -138,14 +143,14 @@ if qa_file:
         mapping_state_key = f"mapping_rows_v3_{file_signature}"
         mapping_ai_status_key = f"mapping_ai_status_v3_{file_signature}"
         if mapping_state_key not in st.session_state:
-            mapping_ollama = None
+            mapping_ai = None
             unknown_headers = [header for header in header_samples if canonical_header(header) is None]
             if ai_enabled and unknown_headers:
-                candidate_service = OllamaService(config.get("ollama") or {})
+                candidate_service = create_ai_service(config)
                 if candidate_service.is_ready():
-                    mapping_ollama = candidate_service
+                    mapping_ai = candidate_service
                     with st.spinner(f"Model AI {candidate_service.model} sedang memetakan header QA..."):
-                        st.session_state[mapping_state_key] = create_mapping_rows(header_samples, mapping_ollama)
+                        st.session_state[mapping_state_key] = create_mapping_rows(header_samples, mapping_ai)
                     if candidate_service.last_error:
                         st.session_state[mapping_ai_status_key] = {
                             "ok": False,
@@ -265,7 +270,7 @@ if "validation" in st.session_state:
     anomalies = RuleBasedAnomalyDetector().detect(results)
     if anomalies:
         st.subheader("Temuan yang perlu ditinjau")
-        ollama = OllamaService(config.get("ollama") or {}) if ai_enabled else None
+        ai_service = create_ai_service(config) if ai_enabled else None
         ai_explanations = st.session_state.setdefault("ai_explanations", {})
         for index, finding in enumerate(anomalies):
             with st.expander(f"{finding.status} · {finding.category} · {finding.object_name}"):
@@ -274,11 +279,11 @@ if "validation" in st.session_state:
                 st.write(f"**Bukti:** {finding.evidence}")
                 st.write(f"**Penjelasan:** {finding.explanation}")
                 st.write(f"**Saran peninjauan:** {finding.suggested_review or 'Penilaian engineer diperlukan.'}")
-                if ollama:
+                if ai_service:
                     explanation_key = f"{index}:{finding.rule_id}:{finding.object_name}:{finding.status}"
                     if st.button("Buat penjelasan AI", key=f"ai_button_{explanation_key}"):
-                        with st.spinner(f"Model AI {ollama.model} sedang menyusun penjelasan..."):
-                            ai_explanations[explanation_key] = ollama.explain(finding)
+                        with st.spinner(f"Model AI {ai_service.model} sedang menyusun penjelasan..."):
+                            ai_explanations[explanation_key] = ai_service.explain(finding)
                     if explanation_key in ai_explanations:
                         st.write(f"**Penjelasan AI:** {ai_explanations[explanation_key]}")
 

@@ -31,4 +31,25 @@ def load_config(path: str | Path = "config.yaml") -> dict:
     enabled = os.getenv("OLLAMA_ENABLED")
     if enabled:
         ollama["enabled"] = enabled.strip().lower() in {"1", "true", "yes", "on"}
+
+    ai = data.setdefault("ai", {})
+    provider = os.getenv("AI_PROVIDER")
+    if provider:
+        ai["provider"] = provider.strip().lower()
+
+    aivene = data.setdefault("aivene", {})
+    aivene_environment_mapping = {
+        "AIVENE_BASE_URL": "base_url",
+        "AIVENE_MODEL": "model",
+        "AIVENE_API_KEY": "api_key",
+        "AIVENE_TIMEOUT_SECONDS": "timeout_seconds",
+    }
+    for environment_name, config_name in aivene_environment_mapping.items():
+        value = os.getenv(environment_name)
+        if value:
+            aivene[config_name] = value
+
+    aivene_enabled = os.getenv("AIVENE_ENABLED")
+    if aivene_enabled:
+        aivene["enabled"] = aivene_enabled.strip().lower() in {"1", "true", "yes", "on"}
     return data

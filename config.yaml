@@ -18,10 +18,19 @@ row_count:
   warning_percentage_threshold: 0.1
   failure_percentage_threshold: 5.0
 
+ai:
+  provider: ollama
+
 ollama:
   enabled: true
   url: http://127.0.0.1:11434
   model: qwen3.5:4b
+  timeout_seconds: 120
+
+aivene:
+  enabled: false
+  base_url: https://api.aivene.com/v1
+  model: gpt-6-astra
   timeout_seconds: 120
 
 maximum_uploaded_file_size_mb: 25

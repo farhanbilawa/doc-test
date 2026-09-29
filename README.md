@@ -95,15 +95,15 @@ Status keseluruhan mengikuti tingkat temuan tertinggi: satu kegagalan determinis
 
 ## Konfigurasi
 
-`config.yaml` mengatur kelompok dan kompatibilitas tipe data, kolom yang diabaikan, ambang jumlah baris, ukuran maksimum unggahan, dan pengaturan Ollama opsional. Ambang jumlah baris menggunakan persentase. Perbedaan di bawah ambang gagal tetap menjadi peringatan kecuali pencocokan persis diaktifkan.
+`config.yaml` mengatur kelompok dan kompatibilitas tipe data, kolom yang diabaikan, ambang jumlah baris, ukuran maksimum unggahan, serta provider AI opsional. Ambang jumlah baris menggunakan persentase. Perbedaan di bawah ambang gagal tetap menjadi peringatan kecuali pencocokan persis diaktifkan.
 
-## Integrasi Ollama
+## Integrasi AI
 
-Ollama aktif secara default dan menggunakan model lokal `qwen3.5:4b`. Pengaturan lokal berada di `config.yaml`. Pada deployment, nilai tersebut dapat dioverride melalui environment variable/Streamlit Secrets `OLLAMA_ENABLED`, `OLLAMA_URL`, `OLLAMA_MODEL`, `OLLAMA_API_KEY`, dan `OLLAMA_TIMEOUT_SECONDS`. Klien mendukung Ollama lokal tanpa token serta Ollama Cloud atau gateway yang memakai token Bearer.
+Aplikasi mendukung provider `ollama` dan `aivene`. Provider dipilih melalui `AI_PROVIDER`. Ollama tetap menjadi default lokal dengan model `qwen3.5:4b`; deployment dapat memakai Aivene melalui `AIVENE_BASE_URL`, `AIVENE_MODEL`, `AIVENE_API_KEY`, dan `AIVENE_TIMEOUT_SECONDS`. Kedua adapter memakai autentikasi Bearer saat API key tersedia.
 
-Untuk Streamlit Community Cloud, gunakan endpoint yang dapat dijangkau dari internet seperti Ollama Cloud; `127.0.0.1` akan menunjuk ke server Streamlit, bukan laptop pengguna. Contoh konfigurasi tersedia di `.streamlit/secrets.example.toml` dan panduan lengkap berada di `DEPLOYMENT.md`.
+Untuk Streamlit Community Cloud, gunakan endpoint yang dapat dijangkau dari internet seperti Aivene atau Ollama Cloud; `127.0.0.1` akan menunjuk ke server Streamlit, bukan laptop pengguna. Contoh konfigurasi tersedia di `.streamlit/secrets.example.toml` dan panduan lengkap berada di `DEPLOYMENT.md`.
 
-Hanya nama header dengan maksimal dua contoh nilai pendek yang dikirim untuk auto-mapping. Untuk penjelasan, hanya temuan yang sudah dinormalisasi beserta bukti terkait yang dikirim, bukan dokumen asli. Penjelasan dibuat sesuai permintaan melalui tombol **Buat penjelasan AI**. Jika Ollama tidak tersedia, validasi deterministik tetap berjalan. AI tidak pernah menentukan atau mengubah status validasi.
+Hanya nama header dengan maksimal dua contoh nilai pendek yang dikirim untuk auto-mapping. Untuk penjelasan, hanya temuan yang sudah dinormalisasi beserta bukti terkait yang dikirim, bukan dokumen asli. Penjelasan dibuat sesuai permintaan melalui tombol **Buat penjelasan AI**. Jika provider AI tidak tersedia, validasi deterministik tetap berjalan. AI tidak pernah menentukan atau mengubah status validasi.
 
 ## Ekspor laporan
 
@@ -112,7 +112,7 @@ Hasil dapat diunduh sebagai CSV, JSON, atau PDF. Seluruh label laporan menggunak
 ## Pertimbangan keamanan
 
 - Berkas unggahan diproses di memori dan tidak disimpan permanen oleh aplikasi.
-- Tidak ada telemetry, analitik eksternal, atau secret yang ditanam di kode. Jika Ollama Cloud dikonfigurasi, cuplikan header/temuan yang dijelaskan akan dikirim ke layanan tersebut.
+- Tidak ada telemetry, analitik eksternal, atau secret yang ditanam di kode. Jika Aivene atau Ollama Cloud dikonfigurasi, cuplikan header/temuan yang dijelaskan akan dikirim ke layanan tersebut.
 - Log hanya mencatat nama berkas dan jumlah data, bukan isi dokumen.
 - Hasil ekspor memuat temuan dan nama berkas, bukan dokumen asli.
 - Gunakan workstation, akses, retensi, dan prosedur peninjauan yang telah disetujui organisasi sebelum memproses materi sensitif.

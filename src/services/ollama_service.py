@@ -11,6 +11,8 @@ from src.models import ValidationResult
 class OllamaService:
     """Optional Ollama client. It never assigns validation status."""
 
+    provider_name = "Ollama"
+
     def __init__(self, config: dict):
         self.url = str(config.get("url", "http://127.0.0.1:11434")).rstrip("/")
         self.model = str(config.get("model", "llama3.2"))
