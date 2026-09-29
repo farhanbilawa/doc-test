@@ -55,7 +55,7 @@ Fitur validator inti, parser, mapping manual, tabel hasil, dan ekspor laporan da
 - Auto-mapping dan penjelasan AI memerlukan Aivene, Ollama Cloud, atau endpoint privat yang dapat dijangkau deployment.
 - Jangan membuka Ollama atau PostgreSQL lokal ke internet tanpa autentikasi, TLS, pembatasan jaringan, dan persetujuan keamanan.
 
-Untuk demo cloud tanpa AI, matikan toggle **Fitur AI**. Header standar tetap dipetakan secara deterministik, sedangkan header asing dapat dipetakan manual melalui tabel pemetaan.
+Untuk deployment tanpa layanan pemetaan otomatis, set provider aktif menjadi `enabled = false` melalui konfigurasi. Tidak ada toggle atau informasi provider pada UI. Header standar tetap dipetakan secara deterministik, sedangkan header asing dapat dipetakan manual melalui tabel pemetaan.
 
 ## Pilihan penempatan AI
 

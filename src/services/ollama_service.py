@@ -126,13 +126,13 @@ class OllamaService:
                 options={"temperature": 0.2, "num_predict": 300},
                 timeout=self.timeout,
             )
-            return str(text).strip() if text else "Penjelasan AI tidak tersedia."
+            return str(text).strip() if text else "Penjelasan tambahan tidak tersedia."
         except requests.RequestException as exc:
             self._record_request_error(exc)
-            return "Penjelasan AI tidak tersedia."
+            return "Penjelasan tambahan tidak tersedia."
         except (ValueError, TypeError, AttributeError) as exc:
             self.last_error = f"Respons AI tidak dapat dibaca: {exc}"
-            return "Penjelasan AI tidak tersedia."
+            return "Penjelasan tambahan tidak tersedia."
 
     def suggest_column_mapping(self, headers: dict[str, list[str]]) -> list[dict]:
         """Map unfamiliar tabular headers to the normalized QA schema."""

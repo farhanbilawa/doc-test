@@ -14,7 +14,7 @@ from src.parsers import (
     parse_run_results,
 )
 from src.services.mapping_service import FIELD_LABELS, create_mapping_rows, mapping_dict_from_rows
-from src.services.ai_factory import ai_is_enabled, create_ai_service, selected_ai_provider
+from src.services.ai_factory import ai_is_enabled, create_ai_service
 from src.services.pdf_report import build_pdf_report
 from src.utils.config import load_config
 from src.utils.normalization import canonical_header
@@ -87,33 +87,7 @@ def build_csv_report(results, summary, filenames: dict[str, str | None]) -> byte
 
 st.set_page_config(page_title="Validator Deployment QA", page_icon="✅", layout="wide")
 config = load_config()
-ai_provider = selected_ai_provider(config)
-
-with st.sidebar:
-    st.header("Aplikasi")
-    st.write("Validator Deployment QA")
-    ai_enabled = st.toggle(
-        "Fitur AI",
-        value=ai_is_enabled(config),
-        help="Mengirim data terbatas ke provider AI yang dikonfigurasi untuk mapping dan penjelasan.",
-    )
-    st.caption(f"Provider: {ai_provider}. Seluruh validasi utama tetap deterministik.")
-    if ai_enabled:
-        ai_status_service = create_ai_service(config)
-        available_models = ai_status_service.available_models()
-        if ai_status_service.model in available_models:
-            st.success(f"{ai_status_service.provider_name} siap · {ai_status_service.model}")
-        elif available_models:
-            model_preview = ", ".join(available_models[:8])
-            if len(available_models) > 8:
-                model_preview += f", dan {len(available_models) - 8} model lain"
-            st.error(
-                f"Model {ai_status_service.model} tidak ditemukan di {ai_status_service.provider_name}. "
-                f"Contoh model tersedia: {model_preview}"
-            )
-        else:
-            detail = ai_status_service.last_error or "endpoint tidak dapat dihubungi."
-            st.error(f"{ai_status_service.provider_name} belum siap: {detail}")
+ai_enabled = ai_is_enabled(config)
 
 st.title("Validator Deployment QA")
 st.write("Validasi dokumentasi QA terhadap metadata dbt sebelum deployment.")
@@ -147,20 +121,21 @@ if qa_file:
             unknown_headers = [header for header in header_samples if canonical_header(header) is None]
             if ai_enabled and unknown_headers:
                 candidate_service = create_ai_service(config)
-                if candidate_service.is_ready():
-                    mapping_ai = candidate_service
-                    with st.spinner(f"Model AI {candidate_service.model} sedang memetakan header QA..."):
+                with st.spinner("Sedang membaca dan memetakan struktur dokumen QA..."):
+                    if candidate_service.is_ready():
+                        mapping_ai = candidate_service
                         st.session_state[mapping_state_key] = create_mapping_rows(header_samples, mapping_ai)
-                    if candidate_service.last_error:
-                        st.session_state[mapping_ai_status_key] = {
-                            "ok": False,
-                            "message": candidate_service.last_error,
-                        }
+                    generated_rows = st.session_state.get(mapping_state_key, [])
+                    received_suggestion = any(
+                        row.get("Header Asli") in unknown_headers
+                        and row.get("Alasan") != "Belum dapat dipetakan otomatis."
+                        for row in generated_rows
+                    )
+                    if not mapping_ai or candidate_service.last_error or not received_suggestion:
+                        LOGGER.warning("Pemetaan otomatis gagal: %s", candidate_service.last_error or "layanan belum siap")
+                        st.session_state[mapping_ai_status_key] = {"ok": False}
                     else:
-                        st.session_state[mapping_ai_status_key] = {
-                            "ok": True,
-                            "message": f"Model AI {candidate_service.model} berhasil merespons mapping.",
-                        }
+                        st.session_state[mapping_ai_status_key] = {"ok": True}
             if mapping_state_key not in st.session_state:
                 st.session_state[mapping_state_key] = create_mapping_rows(header_samples)
 
@@ -168,15 +143,15 @@ if qa_file:
         low_confidence = any(float(row.get("Keyakinan", 0)) < 0.75 for row in mapping_rows)
         with st.expander("Pemetaan kolom QA otomatis", expanded=low_confidence):
             st.caption(
-                "Alias umum dipetakan langsung. Header yang tidak dikenal dipetakan oleh model AI "
-                "menggunakan nama header dan maksimal dua contoh nilai pendek. Periksa mapping sebelum validasi."
+                "Header dipetakan otomatis menggunakan nama kolom dan maksimal dua contoh nilai pendek. "
+                "Periksa hasil pemetaan sebelum validasi."
             )
             mapping_ai_status = st.session_state.get(mapping_ai_status_key)
             if mapping_ai_status:
                 if mapping_ai_status["ok"]:
-                    st.success(mapping_ai_status["message"])
+                    st.success("Pemetaan otomatis selesai.")
                 else:
-                    st.error(f"Mapping AI gagal. {mapping_ai_status['message']}")
+                    st.error("Pemetaan otomatis tidak tersedia. Periksa konfigurasi layanan atau koreksi mapping secara manual.")
             mapping_frame = pd.DataFrame(mapping_rows)
             # Nilai internal memakai rentang 0.0-1.0. UI menampilkan persen 0-100
             # agar 1.0 terbaca sebagai 100%, bukan 1%.
@@ -194,7 +169,7 @@ if qa_file:
                         required=True,
                     ),
                     "Keyakinan (%)": st.column_config.ProgressColumn(
-                        "Keyakinan AI",
+                        "Keyakinan Mapping",
                         min_value=0.0,
                         max_value=100.0,
                         format="%.0f%%",
@@ -281,11 +256,11 @@ if "validation" in st.session_state:
                 st.write(f"**Saran peninjauan:** {finding.suggested_review or 'Penilaian engineer diperlukan.'}")
                 if ai_service:
                     explanation_key = f"{index}:{finding.rule_id}:{finding.object_name}:{finding.status}"
-                    if st.button("Buat penjelasan AI", key=f"ai_button_{explanation_key}"):
-                        with st.spinner(f"Model AI {ai_service.model} sedang menyusun penjelasan..."):
+                    if st.button("Buat penjelasan tambahan", key=f"ai_button_{explanation_key}"):
+                        with st.spinner("Sedang menyusun penjelasan..."):
                             ai_explanations[explanation_key] = ai_service.explain(finding)
                     if explanation_key in ai_explanations:
-                        st.write(f"**Penjelasan AI:** {ai_explanations[explanation_key]}")
+                        st.write(f"**Penjelasan tambahan:** {ai_explanations[explanation_key]}")
 
     json_report = build_json_report(results, summary, filenames)
     csv_report = build_csv_report(results, summary, filenames)

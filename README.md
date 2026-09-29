@@ -103,7 +103,7 @@ Aplikasi mendukung provider `ollama` dan `aivene`. Provider dipilih melalui `AI_
 
 Untuk Streamlit Community Cloud, gunakan endpoint yang dapat dijangkau dari internet seperti Aivene atau Ollama Cloud; `127.0.0.1` akan menunjuk ke server Streamlit, bukan laptop pengguna. Contoh konfigurasi tersedia di `.streamlit/secrets.example.toml` dan panduan lengkap berada di `DEPLOYMENT.md`.
 
-Hanya nama header dengan maksimal dua contoh nilai pendek yang dikirim untuk auto-mapping. Untuk penjelasan, hanya temuan yang sudah dinormalisasi beserta bukti terkait yang dikirim, bukan dokumen asli. Penjelasan dibuat sesuai permintaan melalui tombol **Buat penjelasan AI**. Jika provider AI tidak tersedia, validasi deterministik tetap berjalan. AI tidak pernah menentukan atau mengubah status validasi.
+Hanya nama header dengan maksimal dua contoh nilai pendek yang dikirim untuk auto-mapping. Untuk penjelasan, hanya temuan yang sudah dinormalisasi beserta bukti terkait yang dikirim, bukan dokumen asli. Penjelasan dibuat sesuai permintaan melalui tombol **Buat penjelasan tambahan**. UI tidak menampilkan provider atau model; pemilihannya dikelola melalui konfigurasi deployment. Jika layanan tidak tersedia, validasi deterministik tetap berjalan. Layanan tersebut tidak pernah menentukan atau mengubah status validasi.
 
 ## Ekspor laporan
 

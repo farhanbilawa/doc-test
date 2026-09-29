@@ -11,3 +11,4 @@ def test_streamlit_app_renders_without_exception():
     assert not app.exception
     assert app.title[0].value == "Validator Deployment QA"
     assert app.button[0].label == "Jalankan Validasi"
+    assert not app.toggle
