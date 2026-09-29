@@ -26,8 +26,8 @@ def test_ollama_detects_configured_qwen(monkeypatch):
 def test_ollama_uses_qwen_without_thinking_and_returns_indonesian(monkeypatch):
     captured = {}
 
-    def fake_post(url, json, timeout):
-        captured.update({"url": url, "json": json, "timeout": timeout})
+    def fake_post(url, json, headers, timeout):
+        captured.update({"url": url, "json": json, "headers": headers, "timeout": timeout})
         return FakeResponse({"response": "Anomali: tipe data berbeda."})
 
     monkeypatch.setattr("src.services.ollama_service.requests.post", fake_post)
@@ -47,8 +47,8 @@ def test_ollama_uses_qwen_without_thinking_and_returns_indonesian(monkeypatch):
 def test_ollama_returns_structured_header_mapping(monkeypatch):
     captured = {}
 
-    def fake_post(url, json, timeout):
-        captured.update({"json": json})
+    def fake_post(url, json, headers, timeout):
+        captured.update({"json": json, "headers": headers})
         return FakeResponse({
             "response": '{"mappings":[{"source_header":"DTYPE","target_field":"expected_data_type","confidence":0.97,"reason":"Singkatan tipe data."}]}'
         })
@@ -60,3 +60,22 @@ def test_ollama_returns_structured_header_mapping(monkeypatch):
     assert captured["json"]["format"]["type"] == "object"
     assert captured["json"]["think"] is False
 
+
+def test_ollama_sends_bearer_token_without_exposing_it_in_url(monkeypatch):
+    captured = {}
+
+    def fake_get(url, headers, timeout):
+        captured.update({"url": url, "headers": headers, "timeout": timeout})
+        return FakeResponse({"models": [{"name": "qwen-cloud"}]})
+
+    monkeypatch.setattr("src.services.ollama_service.requests.get", fake_get)
+    service = OllamaService({
+        "url": "https://ollama.com",
+        "model": "qwen-cloud",
+        "api_key": "rahasia",
+    })
+
+    assert service.is_ready() is True
+    assert captured["url"] == "https://ollama.com/api/tags"
+    assert captured["headers"] == {"Authorization": "Bearer rahasia"}
+    assert "rahasia" not in captured["url"]

@@ -8,17 +8,28 @@ from src.models import ValidationResult
 
 
 class OllamaService:
-    """Optional local-only anomaly explainer. It never assigns validation status."""
+    """Optional Ollama client. It never assigns validation status."""
 
     def __init__(self, config: dict):
         self.url = str(config.get("url", "http://127.0.0.1:11434")).rstrip("/")
         self.model = str(config.get("model", "llama3.2"))
         self.timeout = float(config.get("timeout_seconds", 10))
+        self.api_key = str(config.get("api_key", "")).strip()
+
+    @property
+    def headers(self) -> dict[str, str]:
+        if not self.api_key:
+            return {}
+        return {"Authorization": f"Bearer {self.api_key}"}
 
     def available_models(self) -> list[str]:
         """Return model tags exposed by the local Ollama service."""
         try:
-            response = requests.get(f"{self.url}/api/tags", timeout=min(self.timeout, 5))
+            response = requests.get(
+                f"{self.url}/api/tags",
+                headers=self.headers,
+                timeout=min(self.timeout, 5),
+            )
             response.raise_for_status()
             return [
                 str(item.get("name"))
@@ -50,6 +61,7 @@ class OllamaService:
                     "think": False,
                     "options": {"temperature": 0.2, "num_predict": 300},
                 },
+                headers=self.headers,
                 timeout=self.timeout,
             )
             response.raise_for_status()
@@ -108,6 +120,7 @@ class OllamaService:
                     "format": schema,
                     "options": {"temperature": 0, "num_predict": 320},
                 },
+                headers=self.headers,
                 timeout=max(self.timeout, 120),
             )
             response.raise_for_status()

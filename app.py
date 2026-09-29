@@ -92,9 +92,9 @@ with st.sidebar:
     st.header("Aplikasi")
     st.write("Validator Deployment QA")
     ai_enabled = st.toggle(
-        "Penjelasan AI Ollama",
+        "Fitur AI Ollama",
         value=bool((config.get("ollama") or {}).get("enabled", False)),
-        help="Hanya mengirim temuan yang sudah dinormalisasi ke endpoint Ollama lokal yang dikonfigurasi.",
+        help="Mengirim data terbatas ke endpoint Ollama yang dikonfigurasi untuk mapping dan penjelasan.",
     )
     st.caption("Seluruh validasi utama tetap deterministik dan diproses secara lokal.")
     if ai_enabled:
@@ -108,7 +108,7 @@ with st.sidebar:
                 f"Model tersedia: {', '.join(available_models)}"
             )
         else:
-            st.error("Ollama tidak dapat dihubungi di endpoint lokal.")
+            st.error("Ollama tidak dapat dihubungi atau model tidak tersedia di endpoint yang dikonfigurasi.")
 
 st.title("Validator Deployment QA")
 st.write("Validasi dokumentasi QA terhadap metadata dbt sebelum deployment.")
@@ -151,7 +151,7 @@ if qa_file:
         low_confidence = any(float(row.get("Keyakinan", 0)) < 0.75 for row in mapping_rows)
         with st.expander("Pemetaan kolom QA otomatis", expanded=low_confidence):
             st.caption(
-                "Alias umum dipetakan langsung. Header yang tidak dikenal dipetakan oleh Qwen lokal "
+                "Alias umum dipetakan langsung. Header yang tidak dikenal dipetakan oleh Qwen "
                 "menggunakan nama header dan maksimal dua contoh nilai pendek. Periksa mapping sebelum validasi."
             )
             mapping_frame = pd.DataFrame(mapping_rows)
@@ -262,7 +262,7 @@ if "validation" in st.session_state:
                         with st.spinner(f"Qwen {ollama.model} sedang menyusun penjelasan..."):
                             ai_explanations[explanation_key] = ollama.explain(finding)
                     if explanation_key in ai_explanations:
-                        st.write(f"**Penjelasan AI lokal:** {ai_explanations[explanation_key]}")
+                        st.write(f"**Penjelasan AI:** {ai_explanations[explanation_key]}")
 
     json_report = build_json_report(results, summary, filenames)
     csv_report = build_csv_report(results, summary, filenames)
