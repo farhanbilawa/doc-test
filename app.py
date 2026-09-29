@@ -134,7 +134,8 @@ if qa_file:
     header_samples = inspect_tabular_headers(qa_file.getvalue(), qa_file.name)
     if header_samples:
         file_signature = hashlib.sha256(qa_file.getvalue()).hexdigest()[:16]
-        mapping_state_key = f"mapping_rows_{file_signature}"
+        # Versi key mencegah hasil mapping lama tersimpan setelah kamus alias diperbarui.
+        mapping_state_key = f"mapping_rows_v2_{file_signature}"
         if mapping_state_key not in st.session_state:
             mapping_ollama = None
             unknown_headers = [header for header in header_samples if canonical_header(header) is None]

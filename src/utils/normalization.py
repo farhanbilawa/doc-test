@@ -6,15 +6,21 @@ from typing import Any
 
 ALIASES = {
     "table": "model_name", "model": "model_name", "model name": "model_name",
+    "tbl obj": "model_name", "table object": "model_name",
     "target": "target_name", "target table": "target_name",
     "source": "source_name", "source table": "source_name",
     "column": "column_name", "field": "column_name", "column name": "column_name",
+    "field nm": "column_name", "field name": "column_name",
     "data type": "expected_data_type", "datatype": "expected_data_type", "type": "expected_data_type",
+    "target fmt": "expected_data_type", "target format": "expected_data_type",
     "nullable": "expected_nullable", "not null": "expected_not_null",
+    "required flag": "expected_not_null",
     "unique": "expected_unique", "expected row count": "expected_row_count",
+    "unique flag": "expected_unique", "expected rows": "expected_row_count",
     "actual row count": "actual_row_count", "test": "expected_test",
+    "observed rows": "actual_row_count",
     "validation": "expected_test", "result": "qa_status", "status": "qa_status",
-    "complete schema": "complete_schema",
+    "complete schema": "complete_schema", "full layout": "complete_schema",
 }
 
 
@@ -70,4 +76,3 @@ def normalize_test_name(value: str | None) -> str | None:
     if "relationship" in text or "foreign key" in text:
         return "relationships"
     return text.replace(" ", "_")
-

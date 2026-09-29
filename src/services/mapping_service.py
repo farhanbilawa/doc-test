@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from src.services.ollama_service import OllamaService
-from src.utils.normalization import canonical_header
+from src.utils.normalization import canonical_header, normalized_key
 
 
 FIELD_LABELS = {
@@ -44,12 +44,14 @@ def create_mapping_rows(
 
     suggestions = ollama.suggest_column_mapping(unknown) if ollama and unknown else []
     by_header = {
-        str(item.get("source_header", "")).strip(): item
+        normalized_key(item.get("source_header", "")): item
         for item in suggestions
-        if str(item.get("source_header", "")).strip() in unknown
+        if normalized_key(item.get("source_header", "")) in {
+            normalized_key(candidate) for candidate in unknown
+        }
     }
     for header in unknown:
-        suggestion = by_header.get(header) or {}
+        suggestion = by_header.get(normalized_key(header)) or {}
         field = str(suggestion.get("target_field") or "ignore")
         if field not in FIELD_LABELS:
             field = "ignore"
