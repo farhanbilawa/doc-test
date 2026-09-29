@@ -114,8 +114,8 @@ if qa_file:
     if header_samples:
         file_signature = hashlib.sha256(qa_file.getvalue()).hexdigest()[:16]
         # Versi key mencegah hasil mapping lama tersimpan setelah kamus alias diperbarui.
-        mapping_state_key = f"mapping_rows_v4_{file_signature}"
-        mapping_ai_status_key = f"mapping_ai_status_v4_{file_signature}"
+        mapping_state_key = f"mapping_rows_v5_{file_signature}"
+        mapping_ai_status_key = f"mapping_ai_status_v5_{file_signature}"
         if mapping_state_key not in st.session_state:
             mapping_ai = None
             unknown_headers = [header for header in header_samples if canonical_header(header) is None]
@@ -158,7 +158,7 @@ if qa_file:
             mapping_frame["Keyakinan (%)"] = mapping_frame.pop("Keyakinan") * 100
             edited_mapping = st.data_editor(
                 mapping_frame,
-                key=f"mapping_editor_v4_{file_signature}",
+                key=f"mapping_editor_v5_{file_signature}",
                 hide_index=True,
                 use_container_width=True,
                 disabled=["Header Asli", "Keyakinan (%)", "Alasan"],

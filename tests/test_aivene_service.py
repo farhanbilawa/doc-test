@@ -64,4 +64,21 @@ def test_aivene_maps_headers_through_chat_completions(monkeypatch):
     assert captured["json"]["model"] == "gpt-6-astra"
     assert captured["json"]["stream"] is False
     assert captured["headers"]["Authorization"] == "Bearer rahasia"
+    assert captured["json"]["max_completion_tokens"] == 700
     assert service.last_error is None
+
+
+def test_aivene_scales_mapping_output_budget_for_many_headers(monkeypatch):
+    captured = {}
+
+    def fake_post(url, json, headers, timeout):
+        captured.update({"json": json})
+        return FakeResponse({"choices": [{"message": {"content": '{"mappings":[]}'}}]})
+
+    monkeypatch.setattr("src.services.aivene_service.requests.post", fake_post)
+    service = AiveneService({"model": "gpt-6-astra", "api_key": "rahasia"})
+    headers = {f"HEADER_{index}": [str(index)] for index in range(10)}
+
+    service.suggest_column_mapping(headers)
+
+    assert captured["json"]["max_completion_tokens"] == 1200
