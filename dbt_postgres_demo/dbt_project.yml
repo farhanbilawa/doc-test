@@ -1,0 +1,14 @@
+name: qa_validator_postgres_demo
+version: 1.0.0
+config-version: 2
+
+profile: qa_validator_postgres_demo
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+models:
+  qa_validator_postgres_demo:
+    +materialized: view
+

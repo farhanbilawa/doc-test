@@ -1,0 +1,9 @@
+{
+  "metadata": {"generated_at": "2026-01-01T00:00:00Z"},
+  "results": [
+    {"unique_id": "test.synthetic.not_null_dim_customer_customer_id", "status": "pass", "failures": 0, "execution_time": 0.12},
+    {"unique_id": "test.synthetic.unique_dim_customer_customer_id", "status": "pass", "failures": 0, "execution_time": 0.18},
+    {"unique_id": "test.synthetic.not_null_dim_customer_customer_name", "status": "pass", "failures": 0, "execution_time": 0.10}
+  ]
+}
+

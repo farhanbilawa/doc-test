@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.streamlit/
+logs/
+*.log
+.env
+dbt_postgres_demo/target/
+dbt_postgres_demo/logs/
+dbt_postgres_demo/dbt_packages/
+dbt_postgres_demo/.user.yml
+.DS_Store

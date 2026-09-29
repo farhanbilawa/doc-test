@@ -1,0 +1,44 @@
+{
+  "metadata": {"dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v12.json"},
+  "nodes": {
+    "model.synthetic.dim_customer": {
+      "unique_id": "model.synthetic.dim_customer",
+      "resource_type": "model",
+      "name": "dim_customer",
+      "database": "analytics_dev",
+      "schema": "qa_demo",
+      "relation_name": "analytics_dev.qa_demo.dim_customer",
+      "columns": {
+        "customer_id": {"name": "customer_id", "data_type": "BIGINT", "description": "Identifier sintetis"},
+        "customer_name": {"name": "customer_name", "data_type": "VARCHAR(100)"},
+        "birth_date": {"name": "birth_date", "data_type": "STRING"},
+        "religion_code": {"name": "religion_code", "data_type": "STRING"}
+      },
+      "depends_on": {"nodes": ["source.synthetic.raw_customer"]}
+    },
+    "test.synthetic.not_null_dim_customer_customer_id": {
+      "unique_id": "test.synthetic.not_null_dim_customer_customer_id",
+      "resource_type": "test",
+      "name": "not_null_dim_customer_customer_id",
+      "attached_node": "model.synthetic.dim_customer",
+      "test_metadata": {"name": "not_null", "kwargs": {"model": "dim_customer", "column_name": "customer_id"}}
+    },
+    "test.synthetic.unique_dim_customer_customer_id": {
+      "unique_id": "test.synthetic.unique_dim_customer_customer_id",
+      "resource_type": "test",
+      "name": "unique_dim_customer_customer_id",
+      "attached_node": "model.synthetic.dim_customer",
+      "test_metadata": {"name": "unique", "kwargs": {"model": "dim_customer", "column_name": "customer_id"}}
+    },
+    "test.synthetic.not_null_dim_customer_customer_name": {
+      "unique_id": "test.synthetic.not_null_dim_customer_customer_name",
+      "resource_type": "test",
+      "name": "not_null_dim_customer_customer_name",
+      "attached_node": "model.synthetic.dim_customer",
+      "test_metadata": {"name": "not_null", "kwargs": {"model": "dim_customer", "column_name": "customer_name"}}
+    }
+  },
+  "sources": {
+    "source.synthetic.raw_customer": {"name": "raw_customer", "source_name": "synthetic"}
+  }
+}

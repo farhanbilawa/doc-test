@@ -1,0 +1,24 @@
+version: 2
+models:
+  - name: fct_orders
+    columns:
+      - name: order_id
+        data_type: BIGINT
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        data_type: BIGINT
+        constraints:
+          - type: not_null
+      - name: status
+        data_type: STRING
+        tests:
+          - accepted_values:
+              values: [NEW, PAID, CANCELLED]
+  - name: yaml_only_model
+    columns:
+      - name: created_from_yaml
+        data_type: STRING
+        tests: [not_null]
+

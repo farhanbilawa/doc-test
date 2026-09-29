@@ -1,0 +1,16 @@
+qa_validator_postgres_demo:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('DBT_PG_HOST', '127.0.0.1') }}"
+      port: "{{ env_var('DBT_PG_PORT', '5432') | int }}"
+      user: "{{ env_var('DBT_PG_USER', 'postgres') }}"
+      password: "{{ env_var('DBT_ENV_SECRET_PG_PASSWORD') }}"
+      dbname: "{{ env_var('DBT_PG_DATABASE', 'postgres') }}"
+      schema: "{{ env_var('DBT_PG_SCHEMA', 'public') }}"
+      threads: 2
+      connect_timeout: 10
+      retries: 1
+      sslmode: prefer
+

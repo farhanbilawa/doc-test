@@ -1,0 +1,27 @@
+datatype_groups:
+  integer: [INT, INTEGER, BIGINT, SMALLINT, TINYINT]
+  string: [VARCHAR, VARCHAR2, CHAR, STRING, TEXT]
+  decimal: [DECIMAL, NUMERIC, NUMBER, FLOAT, DOUBLE, REAL]
+  date: [DATE]
+  timestamp: [TIMESTAMP, DATETIME]
+  boolean: [BOOLEAN, BOOL]
+
+datatype_compatibility:
+  - [integer, decimal]
+  - [date, timestamp]
+  - [string, string]
+
+ignored_columns: []
+
+row_count:
+  exact_match_required: false
+  warning_percentage_threshold: 0.1
+  failure_percentage_threshold: 5.0
+
+ollama:
+  enabled: true
+  url: http://127.0.0.1:11434
+  model: qwen3.5:4b
+  timeout_seconds: 120
+
+maximum_uploaded_file_size_mb: 25

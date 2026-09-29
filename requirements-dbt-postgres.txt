@@ -1,0 +1,3 @@
+# Dependensi opsional untuk menjalankan project demo dbt ke PostgreSQL.
+dbt-postgres>=1.9,<2
+

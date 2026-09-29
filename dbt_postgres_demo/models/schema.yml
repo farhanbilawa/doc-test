@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: connection_check
+    description: Model sintetis untuk membuktikan koneksi dbt ke PostgreSQL lokal.
+    columns:
+      - name: database_name
+        description: Nama database aktif.
+        data_tests: [not_null]
+      - name: database_user
+        description: Pengguna database aktif.
+        data_tests: [not_null]
+      - name: active_schema
+        description: Skema PostgreSQL aktif.
+        data_tests: [not_null]
+      - name: checked_at
+        description: Waktu pemeriksaan koneksi.
+        data_tests: [not_null]
+

@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v99.json",
+    "note": "Fixture kasus khusus sintetis; versi sengaja dibuat tidak umum"
+  },
+  "nodes": {
+    "model.synthetic.fct_orders": {
+      "unique_id": "model.synthetic.fct_orders",
+      "resource_type": "model",
+      "name": "fct_orders",
+      "database": "analytics_dev",
+      "schema": "qa_sandbox",
+      "relation_name": "analytics_dev.qa_sandbox.fct_orders",
+      "columns": {
+        "order_id": {"name": "order_id", "data_type": "BIGINT"},
+        "customer_id": {"name": "customer_id", "data_type": "BIGINT"},
+        "order_ts": {"name": "order_ts", "data_type": "TIMESTAMP"},
+        "amount": {"name": "amount", "data_type": "DECIMAL(12,2)"},
+        "status": {"name": "status", "data_type": "STRING"},
+        "debug_payload": {"name": "debug_payload", "data_type": "TEXT"}
+      },
+      "depends_on": {
+        "nodes": ["source.synthetic.raw_orders", "model.synthetic.stg_customer"]
+      }
+    },
+    "model.synthetic.incomplete_model": {
+      "unique_id": "model.synthetic.incomplete_model",
+      "resource_type": "model",
+      "name": "incomplete_model",
+      "schema": "qa_sandbox"
+    },
+    "test.synthetic.not_null_fct_orders_order_id": {
+      "unique_id": "test.synthetic.not_null_fct_orders_order_id",
+      "resource_type": "test",
+      "name": "not_null_fct_orders_order_id",
+      "attached_node": "model.synthetic.fct_orders",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {"column_name": "order_id"}
+      }
+    },
+    "test.synthetic.unique_fct_orders_order_id": {
+      "unique_id": "test.synthetic.unique_fct_orders_order_id",
+      "resource_type": "test",
+      "name": "unique_fct_orders_order_id",
+      "attached_node": "model.synthetic.fct_orders",
+      "test_metadata": {
+        "name": "unique",
+        "kwargs": {"column_name": "order_id"}
+      }
+    },
+    "test.synthetic.not_null_fct_orders_order_ts": {
+      "unique_id": "test.synthetic.not_null_fct_orders_order_ts",
+      "resource_type": "test",
+      "name": "not_null_fct_orders_order_ts",
+      "attached_node": "model.synthetic.fct_orders",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {"column_name": "order_ts"}
+      }
+    },
+    "test.synthetic.not_null_fct_orders_amount": {
+      "unique_id": "test.synthetic.not_null_fct_orders_amount",
+      "resource_type": "test",
+      "name": "not_null_fct_orders_amount",
+      "attached_node": "model.synthetic.fct_orders",
+      "test_metadata": {
+        "name": "not_null",
+        "kwargs": {"column_name": "amount"}
+      }
+    },
+    "test.synthetic.accepted_values_fct_orders_status": {
+      "unique_id": "test.synthetic.accepted_values_fct_orders_status",
+      "resource_type": "test",
+      "name": "accepted_values_fct_orders_status",
+      "attached_node": "model.synthetic.fct_orders",
+      "test_metadata": {
+        "name": "accepted_values",
+        "kwargs": {"column_name": "status", "values": ["NEW", "PAID", "CANCELLED"]}
+      }
+    }
+  },
+  "sources": {
+    "source.synthetic.raw_orders": {
+      "unique_id": "source.synthetic.raw_orders",
+      "source_name": "synthetic",
+      "name": "raw_orders"
+    }
+  }
+}

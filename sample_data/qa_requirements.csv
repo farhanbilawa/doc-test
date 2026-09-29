@@ -1,0 +1,5 @@
+Model,Column,Data Type,Not Null,Unique,Complete Schema,Expected Row Count,Actual Row Count,Status
+dim_customer,customer_id,BIGINT,Yes,Yes,Yes,1201432,1201431,PASS
+dim_customer,customer_name,VARCHAR(100),Yes,No,Yes,,,PASS
+dim_customer,birth_date,DATE,No,No,Yes,,,PASS
+

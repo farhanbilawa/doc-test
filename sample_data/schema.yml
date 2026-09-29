@@ -1,0 +1,15 @@
+version: 2
+models:
+  - name: dim_customer
+    description: Dimensi customer sintetis khusus untuk demonstrasi lokal.
+    columns:
+      - name: customer_id
+        data_type: BIGINT
+        data_tests: [not_null, unique]
+      - name: customer_name
+        data_type: VARCHAR(100)
+        tests: [not_null]
+      - name: birth_date
+        data_type: STRING
+      - name: religion_code
+        data_type: STRING

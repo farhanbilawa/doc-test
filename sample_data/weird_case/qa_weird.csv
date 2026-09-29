@@ -1,0 +1,10 @@
+Target Table,Source Table,Field,Datatype,Not Null,Unique,Validation,Expected Row Count,Actual Row Count,Complete Schema,Status
+fct_orders,raw_orders,order_id,INTEGER,Yes,Yes,,100000,92000,Yes,PASS
+fct_orders,raw_orders,customer_id,BIGINT,Yes,No,,,,Yes,PASS
+fct_orders,raw_orders,order_ts,DATE,Yes,No,,,,Yes,PASS
+fct_orders,raw_orders,amount,"DECIMAL(18,2)",Yes,No,,,,Yes,PASS
+fct_orders,raw_orders,status,VARCHAR(20),No,No,accepted_values,,,Yes,PASS
+fct_orders,raw_orders,legacy_flag,BOOLEAN,No,No,,,,Yes,PASS
+dim_orphan,,orphan_id,BIGINT,Yes,Yes,,,,Yes,PASS
+incomplete_model,,mystery_column,STRING,No,No,,,,Yes,
+

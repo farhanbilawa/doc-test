@@ -1,0 +1,5 @@
+TBL_OBJ,FIELD_NM,TARGET_FMT,REQUIRED_FLAG,UNIQUE_FLAG,EXPECTED_ROWS,OBSERVED_ROWS,FULL_LAYOUT
+dim_customer,customer_id,BIGINT,Y,Y,1201432,1201431,Y
+dim_customer,customer_name,VARCHAR(100),Y,N,,,Y
+dim_customer,birth_date,DATE,N,N,,,Y
+

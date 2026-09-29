@@ -1,0 +1,36 @@
+{
+  "metadata": {"generated_at": "2026-09-28T00:00:00Z"},
+  "results": [
+    {
+      "unique_id": "test.synthetic.not_null_fct_orders_order_id",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 0.08
+    },
+    {
+      "unique_id": "test.synthetic.unique_fct_orders_order_id",
+      "status": "fail",
+      "failures": 37,
+      "execution_time": 0.22
+    },
+    {
+      "unique_id": "test.synthetic.not_null_fct_orders_order_ts",
+      "status": "success",
+      "failures": 0,
+      "execution_time": 0.09
+    },
+    {
+      "unique_id": "test.synthetic.not_null_fct_orders_amount",
+      "status": "error",
+      "failures": null,
+      "execution_time": 0.01
+    },
+    {
+      "unique_id": "test.synthetic.accepted_values_fct_orders_status",
+      "status": "skipped",
+      "failures": null,
+      "execution_time": 0.0
+    }
+  ]
+}
+
