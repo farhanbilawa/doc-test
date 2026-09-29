@@ -167,7 +167,7 @@ if qa_file:
                 mapping_frame,
                 key=mapping_editor_key,
                 hide_index=True,
-                use_container_width=True,
+                width="stretch",
                 disabled=["Header Asli", "Keyakinan (%)", "Alasan"],
                 column_config={
                     "Dipetakan Ke": st.column_config.SelectboxColumn(
@@ -191,7 +191,7 @@ if qa_file:
             if ignored_headers:
                 st.warning(f"Header yang diabaikan: {', '.join(ignored_headers)}")
 
-if st.button("Jalankan Validasi", type="primary", use_container_width=True):
+if st.button("Jalankan Validasi", type="primary", width="stretch"):
     if not qa_file or not manifest_file:
         st.error("Unggah dokumen QA dan manifest.json sebelum menjalankan validasi.")
     else:
@@ -247,7 +247,7 @@ if "validation" in st.session_state:
     st.subheader("Detail hasil validasi")
     status_filter = st.selectbox("Filter status", ["Semua", "PASS", "WARNING", "FAIL"])
     visible = results if status_filter == "Semua" else [item for item in results if item.status == status_filter]
-    st.dataframe(pd.DataFrame(result_rows(visible)), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(result_rows(visible)), width="stretch", hide_index=True)
 
     anomalies = RuleBasedAnomalyDetector().detect(results)
     if anomalies:
@@ -273,6 +273,6 @@ if "validation" in st.session_state:
     csv_report = build_csv_report(results, summary, filenames)
     pdf_report = build_pdf_report(results, summary, filenames)
     download_left, download_middle, download_right = st.columns(3)
-    download_left.download_button("Unduh laporan CSV", csv_report, "laporan_validasi_qa.csv", "text/csv", use_container_width=True)
-    download_middle.download_button("Unduh laporan JSON", json_report, "laporan_validasi_qa.json", "application/json", use_container_width=True)
-    download_right.download_button("Unduh laporan PDF", pdf_report, "laporan_validasi_qa.pdf", "application/pdf", use_container_width=True)
+    download_left.download_button("Unduh laporan CSV", csv_report, "laporan_validasi_qa.csv", "text/csv", width="stretch")
+    download_middle.download_button("Unduh laporan JSON", json_report, "laporan_validasi_qa.json", "application/json", width="stretch")
+    download_right.download_button("Unduh laporan PDF", pdf_report, "laporan_validasi_qa.pdf", "application/pdf", width="stretch")
