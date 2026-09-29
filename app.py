@@ -135,7 +135,8 @@ if qa_file:
     if header_samples:
         file_signature = hashlib.sha256(qa_file.getvalue()).hexdigest()[:16]
         # Versi key mencegah hasil mapping lama tersimpan setelah kamus alias diperbarui.
-        mapping_state_key = f"mapping_rows_v2_{file_signature}"
+        mapping_state_key = f"mapping_rows_v3_{file_signature}"
+        mapping_ai_status_key = f"mapping_ai_status_v3_{file_signature}"
         if mapping_state_key not in st.session_state:
             mapping_ollama = None
             unknown_headers = [header for header in header_samples if canonical_header(header) is None]
@@ -145,6 +146,16 @@ if qa_file:
                     mapping_ollama = candidate_service
                     with st.spinner(f"Model AI {candidate_service.model} sedang memetakan header QA..."):
                         st.session_state[mapping_state_key] = create_mapping_rows(header_samples, mapping_ollama)
+                    if candidate_service.last_error:
+                        st.session_state[mapping_ai_status_key] = {
+                            "ok": False,
+                            "message": candidate_service.last_error,
+                        }
+                    else:
+                        st.session_state[mapping_ai_status_key] = {
+                            "ok": True,
+                            "message": f"Model AI {candidate_service.model} berhasil merespons mapping.",
+                        }
             if mapping_state_key not in st.session_state:
                 st.session_state[mapping_state_key] = create_mapping_rows(header_samples)
 
@@ -155,6 +166,12 @@ if qa_file:
                 "Alias umum dipetakan langsung. Header yang tidak dikenal dipetakan oleh model AI "
                 "menggunakan nama header dan maksimal dua contoh nilai pendek. Periksa mapping sebelum validasi."
             )
+            mapping_ai_status = st.session_state.get(mapping_ai_status_key)
+            if mapping_ai_status:
+                if mapping_ai_status["ok"]:
+                    st.success(mapping_ai_status["message"])
+                else:
+                    st.error(f"Mapping AI gagal. {mapping_ai_status['message']}")
             mapping_frame = pd.DataFrame(mapping_rows)
             # Nilai internal memakai rentang 0.0-1.0. UI menampilkan persen 0-100
             # agar 1.0 terbaca sebagai 100%, bukan 1%.

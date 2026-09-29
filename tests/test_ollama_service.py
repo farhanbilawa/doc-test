@@ -1,10 +1,14 @@
+import requests
+
 from src.models import ValidationResult
 from src.services.ollama_service import OllamaService
 
 
 class FakeResponse:
-    def __init__(self, payload):
+    def __init__(self, payload, status_code=200, text=""):
         self.payload = payload
+        self.status_code = status_code
+        self.text = text
 
     def raise_for_status(self):
         return None
@@ -28,7 +32,7 @@ def test_ollama_uses_qwen_without_thinking_and_returns_indonesian(monkeypatch):
 
     def fake_post(url, json, headers, timeout):
         captured.update({"url": url, "json": json, "headers": headers, "timeout": timeout})
-        return FakeResponse({"response": "Anomali: tipe data berbeda."})
+        return FakeResponse({"message": {"content": "Anomali: tipe data berbeda."}})
 
     monkeypatch.setattr("src.services.ollama_service.requests.post", fake_post)
     finding = ValidationResult(
@@ -39,9 +43,10 @@ def test_ollama_uses_qwen_without_thinking_and_returns_indonesian(monkeypatch):
     service = OllamaService({"model": "qwen3.5:4b", "timeout_seconds": 60})
 
     assert service.explain(finding) == "Anomali: tipe data berbeda."
+    assert captured["url"].endswith("/api/chat")
     assert captured["json"]["model"] == "qwen3.5:4b"
     assert captured["json"]["think"] is False
-    assert "Bahasa Indonesia" in captured["json"]["prompt"]
+    assert "Bahasa Indonesia" in captured["json"]["messages"][0]["content"]
 
 
 def test_ollama_returns_structured_header_mapping(monkeypatch):
@@ -50,7 +55,7 @@ def test_ollama_returns_structured_header_mapping(monkeypatch):
     def fake_post(url, json, headers, timeout):
         captured.update({"json": json, "headers": headers})
         return FakeResponse({
-            "response": '{"mappings":[{"source_header":"DTYPE","target_field":"expected_data_type","confidence":0.97,"reason":"Singkatan tipe data."}]}'
+            "message": {"content": '{"mappings":[{"source_header":"DTYPE","target_field":"expected_data_type","confidence":0.97,"reason":"Singkatan tipe data."}]}' }
         })
 
     monkeypatch.setattr("src.services.ollama_service.requests.post", fake_post)
@@ -59,6 +64,50 @@ def test_ollama_returns_structured_header_mapping(monkeypatch):
     assert mappings[0]["target_field"] == "expected_data_type"
     assert captured["json"]["format"]["type"] == "object"
     assert captured["json"]["think"] is False
+
+
+def test_ollama_cloud_mapping_uses_chat_without_unsupported_format(monkeypatch):
+    captured = {}
+
+    def fake_post(url, json, headers, timeout):
+        captured.update({"url": url, "json": json, "headers": headers})
+        return FakeResponse({
+            "message": {
+                "content": "```json\n{\"mappings\":[{\"source_header\":\"ASSET_SCOPE\",\"target_field\":\"model_name\",\"confidence\":0.91}]}\n```"
+            }
+        })
+
+    monkeypatch.setattr("src.services.ollama_service.requests.post", fake_post)
+    service = OllamaService({
+        "url": "https://ollama.com",
+        "model": "gemma4:31b",
+        "api_key": "rahasia",
+    })
+
+    mappings = service.suggest_column_mapping({"ASSET_SCOPE": ["dim_customer"]})
+
+    assert mappings[0]["target_field"] == "model_name"
+    assert captured["url"] == "https://ollama.com/api/chat"
+    assert "format" not in captured["json"]
+    assert "think" not in captured["json"]
+    assert service.last_error is None
+
+
+def test_ollama_mapping_exposes_http_error(monkeypatch):
+    class ErrorResponse(FakeResponse):
+        def raise_for_status(self):
+            raise requests.HTTPError("bad request", response=self)
+
+    monkeypatch.setattr(
+        "src.services.ollama_service.requests.post",
+        lambda *args, **kwargs: ErrorResponse({}, 400, "structured outputs unavailable"),
+    )
+    service = OllamaService({"url": "https://ollama.com", "model": "gemma4:31b"})
+
+    assert service.suggest_column_mapping({"ASSET_SCOPE": ["dim_customer"]}) == []
+    assert service.last_error == (
+        "Permintaan AI gagal (HTTP 400): structured outputs unavailable"
+    )
 
 
 def test_ollama_sends_bearer_token_without_exposing_it_in_url(monkeypatch):

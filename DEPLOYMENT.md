@@ -41,6 +41,8 @@ OLLAMA_TIMEOUT_SECONDS = "120"
 
 Nilai `OLLAMA_MODEL` harus sama persis dengan tag model yang tersedia pada akun/endpoint Ollama. Contoh aman tanpa nilai rahasia juga tersedia di `.streamlit/secrets.example.toml`. Jangan membuat atau mengunggah `.streamlit/secrets.toml` berisi API key ke GitHub.
 
+Integrasi cloud memakai endpoint `/api/chat`. Karena Ollama Cloud tidak mendukung structured outputs, aplikasi meminta JSON melalui instruksi prompt dan memvalidasi hasilnya sendiri. Jika request atau parsing gagal, detail kegagalan ditampilkan pada panel pemetaan; aplikasi tidak lagi menyamarkan kegagalan AI sebagai mapping yang berhasil.
+
 ## Batasan deployment cloud
 
 Fitur validator inti, parser, mapping manual, tabel hasil, dan ekspor laporan dapat berjalan di cloud. Namun:
