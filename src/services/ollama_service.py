@@ -158,8 +158,9 @@ class OllamaService:
                             "source_header": {"type": "string"},
                             "target_field": {"type": "string", "enum": allowed_fields},
                             "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                            "reason": {"type": "string"},
                         },
-                        "required": ["source_header", "target_field", "confidence"],
+                        "required": ["source_header", "target_field", "confidence", "reason"],
                     },
                 }
             },
@@ -172,6 +173,8 @@ class OllamaService:
             "expected_nullable=boleh null, expected_not_null=wajib terisi, expected_unique=unik, "
             "expected_row_count=jumlah baris harapan, actual_row_count=jumlah baris aktual, "
             "expected_test=pengujian, qa_status=status QA, complete_schema=skema lengkap.\n"
+            "Untuk setiap mapping, isi reason dengan satu kalimat singkat dalam Bahasa Indonesia yang "
+            "menyebut petunjuk dari nama header atau contoh nilainya. Jangan gunakan alasan generik.\n"
             "Balas HANYA dengan JSON valid sesuai schema berikut, tanpa markdown atau penjelasan lain:\n"
             f"{json.dumps(schema, ensure_ascii=False)}\n"
             f"Input: {json.dumps(compact_input, ensure_ascii=False)}"

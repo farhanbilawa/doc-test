@@ -63,6 +63,7 @@ def test_ollama_returns_structured_header_mapping(monkeypatch):
     mappings = service.suggest_column_mapping({"DTYPE": ["BIGINT", "DATE"]})
     assert mappings[0]["target_field"] == "expected_data_type"
     assert captured["json"]["format"]["type"] == "object"
+    assert "reason" in captured["json"]["format"]["properties"]["mappings"]["items"]["required"]
     assert captured["json"]["think"] is False
 
 

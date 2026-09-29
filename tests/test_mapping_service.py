@@ -62,10 +62,12 @@ class CaseChangingOllama:
 
 
 def test_ai_header_matching_is_case_and_separator_insensitive():
-    mapping = mapping_dict_from_rows(
-        create_mapping_rows({"CUSTOM_FIELD": ["order_id"]}, CaseChangingOllama())
-    )
+    rows = create_mapping_rows({"CUSTOM_FIELD": ["order_id"]}, CaseChangingOllama())
+    mapping = mapping_dict_from_rows(rows)
     assert mapping == {"CUSTOM_FIELD": "column_name"}
+    assert rows[0]["Alasan"] == (
+        "Nama header dan contoh nilainya paling sesuai dengan Nama Kolom."
+    )
 
 
 def test_blind_mapping_fixture_really_bypasses_builtin_aliases():

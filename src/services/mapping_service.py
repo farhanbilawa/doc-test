@@ -59,11 +59,19 @@ def create_mapping_rows(
             confidence = max(0.0, min(1.0, float(suggestion.get("confidence", 0))))
         except (TypeError, ValueError):
             confidence = 0.0
+        reason = str(suggestion.get("reason") or "").strip()
+        if not reason and suggestion:
+            reason = (
+                f"Nama header dan contoh nilainya paling sesuai dengan "
+                f"{FIELD_LABELS[field]}."
+            )
+        elif not reason:
+            reason = "Belum dapat dipetakan otomatis."
         rows.append({
             "Header Asli": header,
             "Dipetakan Ke": FIELD_LABELS[field],
             "Keyakinan": confidence,
-            "Alasan": str(suggestion.get("reason") or ("Saran pemetaan otomatis." if suggestion else "Belum dapat dipetakan otomatis.")),
+            "Alasan": reason,
         })
     return rows
 
