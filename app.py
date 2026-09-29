@@ -142,7 +142,7 @@ if qa_file:
                 candidate_service = OllamaService(config.get("ollama") or {})
                 if candidate_service.is_ready():
                     mapping_ollama = candidate_service
-                    with st.spinner(f"Qwen {candidate_service.model} sedang memetakan header QA..."):
+                    with st.spinner(f"Model AI {candidate_service.model} sedang memetakan header QA..."):
                         st.session_state[mapping_state_key] = create_mapping_rows(header_samples, mapping_ollama)
             if mapping_state_key not in st.session_state:
                 st.session_state[mapping_state_key] = create_mapping_rows(header_samples)
@@ -151,7 +151,7 @@ if qa_file:
         low_confidence = any(float(row.get("Keyakinan", 0)) < 0.75 for row in mapping_rows)
         with st.expander("Pemetaan kolom QA otomatis", expanded=low_confidence):
             st.caption(
-                "Alias umum dipetakan langsung. Header yang tidak dikenal dipetakan oleh Qwen "
+                "Alias umum dipetakan langsung. Header yang tidak dikenal dipetakan oleh model AI "
                 "menggunakan nama header dan maksimal dua contoh nilai pendek. Periksa mapping sebelum validasi."
             )
             mapping_frame = pd.DataFrame(mapping_rows)
@@ -259,7 +259,7 @@ if "validation" in st.session_state:
                 if ollama:
                     explanation_key = f"{index}:{finding.rule_id}:{finding.object_name}:{finding.status}"
                     if st.button("Buat penjelasan AI", key=f"ai_button_{explanation_key}"):
-                        with st.spinner(f"Qwen {ollama.model} sedang menyusun penjelasan..."):
+                        with st.spinner(f"Model AI {ollama.model} sedang menyusun penjelasan..."):
                             ai_explanations[explanation_key] = ollama.explain(finding)
                     if explanation_key in ai_explanations:
                         st.write(f"**Penjelasan AI:** {ai_explanations[explanation_key]}")

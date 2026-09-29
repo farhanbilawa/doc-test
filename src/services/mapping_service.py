@@ -61,7 +61,7 @@ def create_mapping_rows(
             "Header Asli": header,
             "Dipetakan Ke": FIELD_LABELS[field],
             "Keyakinan": confidence,
-            "Alasan": str(suggestion.get("reason") or ("Saran Qwen lokal." if suggestion else "Belum dapat dipetakan otomatis.")),
+            "Alasan": str(suggestion.get("reason") or ("Saran model AI." if suggestion else "Belum dapat dipetakan otomatis.")),
         })
     return rows
 

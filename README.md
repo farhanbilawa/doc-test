@@ -67,7 +67,7 @@ Alias tidak peka huruf besar-kecil mencakup Model/Table, Column/Field, Data Type
 
 ### Pemetaan header otomatis
 
-Untuk CSV, Excel, dan tabel Word, aplikasi memeriksa header segera setelah berkas diunggah. Alias umum dipetakan secara deterministik. Header yang tidak dikenal dikirim ke Qwen lokal bersama maksimal dua contoh nilai pendek untuk memperoleh saran mapping. Hasilnya ditampilkan dalam tabel **Pemetaan kolom QA otomatis** dan dapat dikoreksi pengguna sebelum validasi. Dokumen lengkap tidak dikirim ke model dan keputusan `PASS`, `WARNING`, atau `FAIL` tetap dibuat oleh mesin aturan deterministik.
+Untuk CSV, Excel, dan tabel Word, aplikasi memeriksa header segera setelah berkas diunggah. Alias umum dipetakan secara deterministik. Header yang tidak dikenal dikirim ke model Ollama yang dikonfigurasi bersama maksimal dua contoh nilai pendek untuk memperoleh saran mapping. Hasilnya ditampilkan dalam tabel **Pemetaan kolom QA otomatis** dan dapat dikoreksi pengguna sebelum validasi. Dokumen lengkap tidak dikirim ke model dan keputusan `PASS`, `WARNING`, atau `FAIL` tetap dibuat oleh mesin aturan deterministik.
 
 Contoh header internal seperti `TBL_OBJ`, `FIELD_NM`, atau `TARGET_FMT` tersedia dalam `sample_data/auto_mapping_case/`.
 

@@ -47,7 +47,7 @@ Fitur validator inti, parser, mapping manual, tabel hasil, dan ekspor laporan da
 
 - `127.0.0.1:11434` di server cloud bukan Ollama pada laptop pengguna.
 - PostgreSQL lokal di laptop tidak dapat dijangkau oleh server cloud.
-- Auto-mapping Qwen dan penjelasan AI memerlukan Ollama Cloud atau endpoint privat yang dapat dijangkau deployment.
+- Auto-mapping dan penjelasan AI memerlukan model Ollama Cloud atau endpoint privat yang dapat dijangkau deployment.
 - Jangan membuka Ollama atau PostgreSQL lokal ke internet tanpa autentikasi, TLS, pembatasan jaringan, dan persetujuan keamanan.
 
 Untuk demo cloud tanpa AI, matikan toggle **Penjelasan AI Ollama**. Header standar tetap dipetakan secara deterministik, sedangkan header asing dapat dipetakan manual melalui tabel pemetaan.
