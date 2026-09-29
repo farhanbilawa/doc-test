@@ -55,15 +55,13 @@ class AiveneService(OllamaService):
         return ""
 
     def _chat(self, prompt: str, *, options: dict, schema: dict | None = None, timeout: float) -> str:
+        # Gunakan payload minimal yang sama dengan contoh cURL Aivene agar
+        # model lintas-provider tidak ditolak oleh parameter opsional.
         payload: dict = {
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
             "stream": False,
         }
-        if "temperature" in options:
-            payload["temperature"] = options["temperature"]
-        if "num_predict" in options:
-            payload["max_completion_tokens"] = options["num_predict"]
 
         response = requests.post(
             f"{self.url}/chat/completions",

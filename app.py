@@ -114,17 +114,19 @@ if qa_file:
     if header_samples:
         file_signature = hashlib.sha256(qa_file.getvalue()).hexdigest()[:16]
         # Versi key mencegah hasil mapping lama tersimpan setelah kamus alias diperbarui.
-        mapping_state_key = f"mapping_rows_v5_{file_signature}"
-        mapping_ai_status_key = f"mapping_ai_status_v5_{file_signature}"
+        mapping_state_key = f"mapping_rows_v6_{file_signature}"
+        mapping_ai_status_key = f"mapping_ai_status_v6_{file_signature}"
+        mapping_editor_key = f"mapping_editor_v6_{file_signature}"
         if mapping_state_key not in st.session_state:
             mapping_ai = None
             unknown_headers = [header for header in header_samples if canonical_header(header) is None]
             if ai_enabled and unknown_headers:
                 candidate_service = create_ai_service(config)
                 with st.spinner("Sedang membaca dan memetakan struktur dokumen QA..."):
-                    if candidate_service.is_ready():
-                        mapping_ai = candidate_service
-                        st.session_state[mapping_state_key] = create_mapping_rows(header_samples, mapping_ai)
+                    # Panggil inference langsung. Pemeriksaan katalog model
+                    # tidak boleh memblokir endpoint chat yang sebenarnya.
+                    mapping_ai = candidate_service
+                    st.session_state[mapping_state_key] = create_mapping_rows(header_samples, mapping_ai)
                     generated_rows = st.session_state.get(mapping_state_key, [])
                     received_suggestion = any(
                         row.get("Header Asli") in unknown_headers
@@ -151,14 +153,19 @@ if qa_file:
                 if mapping_ai_status["ok"]:
                     st.success("Pemetaan otomatis selesai.")
                 else:
-                    st.error("Pemetaan otomatis tidak tersedia. Periksa konfigurasi layanan atau koreksi mapping secara manual.")
+                    st.error("Pemetaan otomatis tidak tersedia. Coba ulang atau koreksi mapping secara manual.")
+                    if st.button("Coba pemetaan ulang", key=f"retry_mapping_{file_signature}"):
+                        st.session_state.pop(mapping_state_key, None)
+                        st.session_state.pop(mapping_ai_status_key, None)
+                        st.session_state.pop(mapping_editor_key, None)
+                        st.rerun()
             mapping_frame = pd.DataFrame(mapping_rows)
             # Nilai internal memakai rentang 0.0-1.0. UI menampilkan persen 0-100
             # agar 1.0 terbaca sebagai 100%, bukan 1%.
             mapping_frame["Keyakinan (%)"] = mapping_frame.pop("Keyakinan") * 100
             edited_mapping = st.data_editor(
                 mapping_frame,
-                key=f"mapping_editor_v5_{file_signature}",
+                key=mapping_editor_key,
                 hide_index=True,
                 use_container_width=True,
                 disabled=["Header Asli", "Keyakinan (%)", "Alasan"],
