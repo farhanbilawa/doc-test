@@ -12,7 +12,7 @@
 Setelah repository kosong dibuat di GitHub, jalankan dari folder project:
 
 ```powershell
-git remote add origin https://github.com/USERNAME/qa-deployment-validator.git
+git remote add origin https://github.com/farhanbilawa/doc-test.git
 git push -u origin main
 ```
 
