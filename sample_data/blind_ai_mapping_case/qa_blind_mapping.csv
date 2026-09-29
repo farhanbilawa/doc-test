@@ -1,0 +1,4 @@
+ASSET_SCOPE,MEMBER_TOKEN,PHYSICAL_FORM,PRESENCE_GUARD,COLLISION_GUARD,PLANNED_VOLUME,SEEN_VOLUME,AUTHORITATIVE_BLUEPRINT,REVIEW_TICKET,OWNER_NOTE
+dim_customer,customer_id,BIGINT,Yes,Yes,1201432,1201431,Yes,QA-BLIND-701,primary identifier
+dim_customer,customer_name,VARCHAR(100),Yes,No,,,Yes,QA-BLIND-702,display attribute
+dim_customer,birth_date,DATE,No,No,,,Yes,QA-BLIND-703,legacy conversion

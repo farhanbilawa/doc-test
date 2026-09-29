@@ -1,4 +1,11 @@
+from pathlib import Path
+
+from src.parsers import inspect_tabular_headers, parse_qa_document
 from src.services.mapping_service import create_mapping_rows, mapping_dict_from_rows
+from src.utils.normalization import canonical_header
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 class FakeOllama:
@@ -59,3 +66,36 @@ def test_ai_header_matching_is_case_and_separator_insensitive():
         create_mapping_rows({"CUSTOM_FIELD": ["order_id"]}, CaseChangingOllama())
     )
     assert mapping == {"CUSTOM_FIELD": "column_name"}
+
+
+def test_blind_mapping_fixture_really_bypasses_builtin_aliases():
+    fixture = ROOT / "sample_data" / "blind_ai_mapping_case" / "qa_blind_mapping.csv"
+    headers = inspect_tabular_headers(fixture.read_bytes(), fixture.name)
+
+    assert len(headers) == 10
+    assert all(canonical_header(header) is None for header in headers)
+
+
+def test_blind_mapping_fixture_parses_after_expected_ai_mapping():
+    fixture = ROOT / "sample_data" / "blind_ai_mapping_case" / "qa_blind_mapping.csv"
+    mapping = {
+        "ASSET_SCOPE": "model_name",
+        "MEMBER_TOKEN": "column_name",
+        "PHYSICAL_FORM": "expected_data_type",
+        "PRESENCE_GUARD": "expected_not_null",
+        "COLLISION_GUARD": "expected_unique",
+        "PLANNED_VOLUME": "expected_row_count",
+        "SEEN_VOLUME": "actual_row_count",
+        "AUTHORITATIVE_BLUEPRINT": "complete_schema",
+    }
+
+    requirements = parse_qa_document(fixture.read_bytes(), fixture.name, mapping)
+
+    assert len(requirements) == 3
+    assert requirements[0].model_name == "dim_customer"
+    assert requirements[0].column_name == "customer_id"
+    assert requirements[0].expected_not_null is True
+    assert requirements[0].expected_unique is True
+    assert requirements[0].expected_row_count == 1_201_432
+    assert requirements[0].actual_row_count == 1_201_431
+    assert requirements[0].complete_schema is True
